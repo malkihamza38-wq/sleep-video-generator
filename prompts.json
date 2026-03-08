@@ -1,0 +1,30 @@
+{
+  "scenes": [
+    {
+      "id": "scene_01",
+      "prompt": "A white ais-lineart portrait of a philosopher in profile view, black background, thin outline only, no fill, minimalist line drawing",
+      "variants": 5
+    },
+    {
+      "id": "scene_02",
+      "prompt": "A white ais-lineart philosopher standing with mountains in background, black background, thin outline only, no fill, minimalist line drawing, landscape",
+      "variants": 5
+    },
+    {
+      "id": "scene_03",
+      "prompt": "A white ais-lineart ancient Greek temple with columns, black background, thin outline only, no fill, minimalist line drawing, architectural",
+      "variants": 5
+    },
+    {
+      "id": "scene_04",
+      "prompt": "A white ais-lineart open book with pages flowing in wind, black background, thin outline only, no fill, minimalist line drawing",
+      "variants": 5
+    },
+    {
+      "id": "scene_05",
+      "prompt": "A white ais-lineart night sky with stars and crescent moon over hills, black background, thin outline only, no fill, minimalist line drawing",
+      "variants": 5
+    }
+  ],
+  "globalSuffix": "<lora:Line_Art_SDXL:0.7>"
+}

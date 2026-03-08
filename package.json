@@ -1,0 +1,27 @@
+{
+  "name": "sleep-video-generator",
+  "version": "1.0.0",
+  "description": "Automated line-art animation video generator for YouTube sleep content",
+  "scripts": {
+    "generate-images": "node scripts/generate-images.js",
+    "vectorize": "node scripts/vectorize.js",
+    "generate-voice": "node scripts/generate-voice.js",
+    "preview": "npx remotion preview src/index.ts",
+    "render": "node scripts/render.js",
+    "studio": "npx remotion studio src/index.ts"
+  },
+  "dependencies": {
+    "@remotion/cli": "4.0.242",
+    "@remotion/paths": "4.0.242",
+    "@remotion/shapes": "4.0.242",
+    "@remotion/media-utils": "4.0.242",
+    "@remotion/renderer": "4.0.242",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "remotion": "4.0.242"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.1",
+    "typescript": "^5.5.0"
+  }
+}

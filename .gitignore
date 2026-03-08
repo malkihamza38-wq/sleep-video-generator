@@ -1,0 +1,10 @@
+node_modules/
+output/images/
+output/svg/
+output/voice/
+output/final/
+public/voice/
+public/ambient-music.mp3
+dist/
+*.bmp
+.DS_Store
