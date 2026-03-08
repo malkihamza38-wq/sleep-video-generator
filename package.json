@@ -8,7 +8,8 @@
     "generate-voice": "node scripts/generate-voice.js",
     "preview": "npx remotion preview src/index.ts",
     "render": "node scripts/render.js",
-    "studio": "npx remotion studio src/index.ts"
+    "studio": "npx remotion studio src/index.ts",
+    "ui": "python3 app.py"
   },
   "dependencies": {
     "@remotion/cli": "4.0.242",
