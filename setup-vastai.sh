@@ -41,11 +41,11 @@ echo "   Node.js: $(node --version)"
 echo "   npm: $(npm --version)"
 
 # ============================================
-# 3. Python dependencies (XTTS-v2)
+# 3. Python dependencies (Kokoro TTS)
 # ============================================
 echo ""
-echo "🐍 Installing XTTS-v2..."
-pip install -q coqui-tts 2>/dev/null || pip3 install -q coqui-tts
+echo "🐍 Installing Kokoro TTS..."
+pip install -q "kokoro>=0.9" soundfile 2>/dev/null || pip3 install -q "kokoro>=0.9" soundfile
 
 # ============================================
 # 4. Stable Diffusion A1111 (if not running)
@@ -96,8 +96,8 @@ echo "  potrace:      $(potrace --version 2>&1 | head -1)"
 echo "  ffmpeg:       $(ffmpeg -version 2>&1 | head -1)"
 echo "  ImageMagick:  $(convert --version 2>&1 | head -1)"
 
-# Test XTTS import
-python3 -c "from TTS.api import TTS; print('  XTTS-v2:      OK')" 2>/dev/null || echo "  XTTS-v2:      ❌ Failed"
+# Test Kokoro import
+python3 -c "from kokoro import KPipeline; print('  Kokoro TTS:   OK')" 2>/dev/null || echo "  Kokoro TTS:   ❌ Failed"
 
 echo ""
 echo "═══════════════════════════════════════════"
@@ -107,7 +107,7 @@ echo ""
 echo "  1. Start Stable Diffusion (if not running)"
 echo "  2. Edit prompts.json with your scene prompts"
 echo "  3. Place your narration in script.txt"
-echo "  4. Place a 6-sec voice sample in assets/voice-sample.wav"
+echo "  4. (Optional) Place a voice sample in assets/voice-sample.wav"
 echo "  5. Run the pipeline step by step:"
 echo ""
 echo "     npm run generate-images       # Generate line art"

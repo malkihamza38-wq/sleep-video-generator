@@ -3,7 +3,7 @@
 /**
  * generate-voice.js
  *
- * Generates voice narration using XTTS-v2 via a Python subprocess.
+ * Generates voice narration using Kokoro TTS via a Python subprocess.
  * Splits your script into segments (one per scene) and generates audio for each.
  *
  * Usage:
@@ -32,17 +32,17 @@ const sceneFilter = args.includes("--scene")
   : null;
 
 /**
- * Check Python and XTTS are available
+ * Check Python and Kokoro are available
  */
 function checkDependencies() {
-  const result = spawnSync("python3", ["-c", "from TTS.api import TTS; print('OK')"], {
+  const result = spawnSync("python3", ["-c", "from kokoro import KPipeline; print('OK')"], {
     encoding: "utf-8",
     stdio: "pipe",
   });
 
   if (result.status !== 0) {
-    console.error("❌ XTTS-v2 is not installed.");
-    console.error("   Install it with: pip install coqui-tts");
+    console.error("❌ Kokoro TTS is not installed.");
+    console.error('   Install it with: pip install "kokoro>=0.9" soundfile');
     process.exit(1);
   }
 }
@@ -81,7 +81,7 @@ function splitScript(text, numScenes) {
 }
 
 /**
- * Generate audio for a text segment using XTTS-v2 via Python
+ * Generate audio for a text segment using Kokoro TTS via Python
  */
 function generateAudio(text, outputPath) {
   // Escape text for Python
@@ -90,17 +90,23 @@ function generateAudio(text, outputPath) {
     .replace(/"/g, '\\"')
     .replace(/\n/g, " ");
 
-  const pythonScript = `
-import sys
-from TTS.api import TTS
+  const langCode = config.voice.language === "en" ? "a" : config.voice.language === "fr" ? "f" : "a";
+  const voice = config.voice.kokoroVoice || (langCode === "f" ? "ff_siwis" : "af_heart");
 
-tts = TTS("${config.voice.model}", gpu=True)
-tts.tts_to_file(
-    text="${escapedText}",
-    file_path="${outputPath}",
-    speaker_wav="${config.voice.samplePath}",
-    language="${config.voice.language}"
-)
+  const pythonScript = `
+import soundfile as sf
+from kokoro import KPipeline
+
+pipeline = KPipeline(lang_code="${langCode}")
+text = "${escapedText}"
+
+audio_parts = []
+for i, (gs, ps, audio) in enumerate(pipeline(text, voice="${voice}")):
+    audio_parts.append(audio)
+
+import numpy as np
+full_audio = np.concatenate(audio_parts)
+sf.write("${outputPath}", full_audio, 24000)
 print("OK")
 `;
 
@@ -111,7 +117,7 @@ print("OK")
   });
 
   if (result.status !== 0) {
-    throw new Error(result.stderr || "XTTS generation failed");
+    throw new Error(result.stderr || "Kokoro generation failed");
   }
 
   return result.stdout.includes("OK");
@@ -133,20 +139,13 @@ function main() {
   fs.mkdirSync(VOICE_DIR, { recursive: true });
 
   console.log("═══════════════════════════════════════════");
-  console.log("  STEP 4: Voice Generation (XTTS-v2)");
+  console.log("  STEP 4: Voice Generation (Kokoro TTS)");
   console.log("═══════════════════════════════════════════");
 
   // Read script
   if (!fs.existsSync(scriptPath)) {
     console.error(`❌ Script file not found: ${scriptPath}`);
     console.error("   Create a script.txt with your narration text.");
-    process.exit(1);
-  }
-
-  // Check voice sample exists
-  if (!fs.existsSync(config.voice.samplePath)) {
-    console.error(`❌ Voice sample not found: ${config.voice.samplePath}`);
-    console.error("   Place a 6-second .wav sample in assets/voice-sample.wav");
     process.exit(1);
   }
 
@@ -159,10 +158,11 @@ function main() {
 
   const numScenes = svgFiles.length || 25; // Default to 25 if no SVGs yet
 
+  const voice = config.voice.kokoroVoice || "af_heart";
   console.log(`Script: ${scriptPath} (${scriptText.split(/\s+/).length} words)`);
   console.log(`Scenes: ${numScenes}`);
   console.log(`Language: ${config.voice.language}`);
-  console.log(`Voice sample: ${config.voice.samplePath}`);
+  console.log(`Voice: ${voice}`);
 
   // Split script into segments
   const segments = splitScript(scriptText, numScenes);

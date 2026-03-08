@@ -12,8 +12,7 @@
   },
   "voice": {
     "language": "en",
-    "samplePath": "assets/voice-sample.wav",
-    "model": "tts_models/multilingual/multi-dataset/xtts_v2"
+    "kokoroVoice": "af_heart"
   },
   "audio": {
     "ambientMusicPath": "assets/ambient-music.mp3",
