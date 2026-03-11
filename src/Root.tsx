@@ -7,8 +7,7 @@ import { SingleScenePreview } from "./SingleScenePreview";
 const defaultSceneData = [
   {
     id: "scene_01",
-    svgPaths: [] as string[], // Will be loaded from SVG files
-    svgContent: "", // Raw SVG content
+    imageFile: "", // Will be set by render script
     audioDurationFrames: 30 * 120, // 2 min placeholder
     audioFile: "",
   },
@@ -43,7 +42,7 @@ export const RemotionRoot: React.FC = () => {
         width={1920}
         height={1080}
         defaultProps={{
-          svgContent: "",
+          imageFile: "",
           drawDurationSec: 4,
           morphIntensity: 3,
         }}

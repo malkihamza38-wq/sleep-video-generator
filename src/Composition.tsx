@@ -11,7 +11,7 @@ import { Scene } from "./Scene";
 
 interface SceneData {
   id: string;
-  svgContent: string;
+  imageFile: string;
   audioDurationFrames: number;
   audioFile: string;
 }
@@ -88,7 +88,7 @@ export const SleepVideoComposition: React.FC<CompositionProps> = ({
         >
           {/* The scene animation */}
           <Scene
-            svgContent={scene.svgContent}
+            imageFile={scene.imageFile}
             drawDurationSec={drawDurationSec}
             morphIntensity={morphIntensity}
             audioFile={scene.audioFile}

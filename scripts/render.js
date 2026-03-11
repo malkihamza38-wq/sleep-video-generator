@@ -18,6 +18,7 @@ const path = require("path");
 const config = JSON.parse(fs.readFileSync("config.json", "utf-8"));
 
 const SVG_DIR = path.join("output", "svg");
+const IMAGES_DIR = path.join("output", "images");
 const VOICE_DIR = path.join("output", "voice");
 const FINAL_DIR = path.join("output", "final");
 
@@ -48,15 +49,17 @@ function main() {
   console.log("  STEP 6: Final Render (Remotion)");
   console.log("═══════════════════════════════════════════");
 
-  // Load SVG files
-  const svgFiles = fs
-    .readdirSync(SVG_DIR)
-    .filter((f) => f.endsWith(".svg"))
-    .sort();
+  // Find scene directories with PNG images
+  const sceneDirs = fs.existsSync(IMAGES_DIR)
+    ? fs.readdirSync(IMAGES_DIR, { withFileTypes: true })
+        .filter((d) => d.isDirectory())
+        .map((d) => d.name)
+        .sort()
+    : [];
 
-  if (svgFiles.length === 0) {
-    console.error("❌ No SVG files found in output/svg/");
-    console.error("   Run 'npm run vectorize' first.");
+  if (sceneDirs.length === 0) {
+    console.error("❌ No scene folders found in output/images/");
+    console.error("   Add images to scene folders first.");
     process.exit(1);
   }
 
@@ -70,10 +73,25 @@ function main() {
 
   const voiceManifest = JSON.parse(fs.readFileSync(manifestPath, "utf-8"));
 
-  // Build scene data
-  const scenes = svgFiles.map((svgFile) => {
-    const sceneId = svgFile.replace(".svg", "");
-    const svgContent = fs.readFileSync(path.join(SVG_DIR, svgFile), "utf-8");
+  // Build scene data from PNG images
+  const publicImagesDir = path.join("public", "images");
+  fs.mkdirSync(publicImagesDir, { recursive: true });
+
+  const scenes = sceneDirs.map((sceneId) => {
+    const sceneDir = path.join(IMAGES_DIR, sceneId);
+    const pngFiles = fs.readdirSync(sceneDir).filter((f) => f.toLowerCase().endsWith(".png"));
+
+    if (pngFiles.length === 0) {
+      console.warn(`⚠️  ${sceneId}: No PNG files found, skipping`);
+      return null;
+    }
+
+    // Copy image to public folder for Remotion access
+    const pngFile = pngFiles[0];
+    const src = path.join(sceneDir, pngFile);
+    const destName = `${sceneId}.png`;
+    const dest = path.join(publicImagesDir, destName);
+    fs.copyFileSync(src, dest);
 
     // Find matching audio
     const voiceEntry = voiceManifest.find((v) => v.sceneId === sceneId);
@@ -82,11 +100,11 @@ function main() {
 
     return {
       id: sceneId,
-      svgContent,
+      imageFile: `images/${destName}`,
       audioDurationFrames: Math.ceil(durationSec * config.video.fps),
       audioFile: audioFile ? `voice/${audioFile}` : "",
     };
-  });
+  }).filter(Boolean);
 
   // Calculate total duration
   const totalDurationFrames = scenes.reduce(
