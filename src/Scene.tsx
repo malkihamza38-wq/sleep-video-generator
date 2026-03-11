@@ -7,7 +7,7 @@ import {
   Audio,
   staticFile,
 } from "remotion";
-import { evolvePath, warpPath, parsePath, serializeInstructions } from "@remotion/paths";
+import { warpPath, parsePath } from "@remotion/paths";
 
 interface SceneProps {
   svgContent: string; // Raw SVG content with multiple paths
@@ -147,8 +147,8 @@ export const Scene: React.FC<SceneProps> = ({
         xmlns="http://www.w3.org/2000/svg"
       >
         {layers.map((layer, i) => {
-          // === PHASE 1: LINE DRAWING ===
-          // Stagger each layer's drawing start slightly
+          // === PHASE 1: FADE-IN REVEAL ===
+          // Stagger each layer's appearance slightly
           const layerDelay = (i / layers.length) * drawDurationFrames * 0.3;
           const layerDrawEnd = drawDurationFrames + layerDelay;
 
@@ -163,18 +163,7 @@ export const Scene: React.FC<SceneProps> = ({
             }
           );
 
-          let evolveStyle = {};
           let currentPath = layer.d;
-
-          if (drawProgress < 1) {
-            // Still drawing - use evolvePath
-            try {
-              evolveStyle = evolvePath(drawProgress, layer.d);
-            } catch {
-              // Fallback: simple opacity fade
-              evolveStyle = { opacity: drawProgress };
-            }
-          }
 
           // === PHASE 2: MORPHING LOOP (after drawing is complete) ===
           if (frame > drawDurationFrames) {
@@ -193,12 +182,8 @@ export const Scene: React.FC<SceneProps> = ({
             <path
               key={layer.id}
               d={currentPath}
-              stroke="white"
-              fill="none"
-              strokeWidth={layer.strokeWidth}
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              style={evolveStyle}
+              fill="white"
+              style={{ opacity: drawProgress }}
             />
           );
         })}

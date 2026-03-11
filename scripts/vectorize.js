@@ -80,10 +80,10 @@ function convertToSvg(pngPath, svgPath) {
     // Step 4: Post-process SVG - add viewBox, layer IDs, fix colors
     let svg = fs.readFileSync(svgPath, "utf-8");
 
-    // Replace fill="black" with fill="none" stroke="white" for line art style
+    // Replace fill="black" with fill="white" to preserve filled shapes on black background
     svg = svg.replace(
       /fill="#000000"/g,
-      'fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"'
+      'fill="white"'
     );
 
     // Add IDs to paths for layer-based animation
