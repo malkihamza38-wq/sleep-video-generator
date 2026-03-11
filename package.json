@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "description": "Automated line-art animation video generator for YouTube sleep content",
   "scripts": {
-    "generate-images": "node scripts/generate-images.js",
     "vectorize": "node scripts/vectorize.js",
     "generate-voice": "node scripts/generate-voice.js",
     "preview": "npx remotion preview src/index.ts",

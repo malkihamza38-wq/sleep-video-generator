@@ -18,17 +18,5 @@
     "ambientMusicPath": "assets/ambient-music.mp3",
     "ambientVolume": 0.15,
     "voiceVolume": 1.0
-  },
-  "sdApi": {
-    "url": "http://127.0.0.1:7860",
-    "checkpoint": "AlbedoBase XL v2.0",
-    "lora": "Line_Art_SDXL",
-    "loraWeight": 0.7,
-    "steps": 45,
-    "cfgScale": 7,
-    "sampler": "DPM++ 3M SDE Exponential",
-    "width": 1920,
-    "height": 1080,
-    "negativePrompt": "filled, solid white, shading, thick lines, painting, realistic, color, grey, gray"
   }
 }

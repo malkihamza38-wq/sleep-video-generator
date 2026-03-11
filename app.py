@@ -10,8 +10,6 @@ import json
 import os
 import shutil
 import glob
-import time
-import threading
 
 PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
 OUTPUT_DIR = os.path.join(PROJECT_DIR, "output")
@@ -72,17 +70,6 @@ def run_command(cmd, cwd=PROJECT_DIR):
         return str(e), False
 
 
-def check_sd_status():
-    """Check if Stable Diffusion A1111 is running."""
-    config = load_config()
-    url = config["sdApi"]["url"]
-    try:
-        import urllib.request
-        req = urllib.request.urlopen(f"{url}/sdapi/v1/sd-models", timeout=3)
-        return True
-    except Exception:
-        return False
-
 
 # ─── Tab 1: Scene Management ─────────────────────────────────────────────────
 
@@ -92,7 +79,7 @@ def get_scenes_info():
     prompts = load_prompts()
     lines = []
     for i, scene in enumerate(prompts["scenes"]):
-        lines.append(f"**{scene['id']}**: {scene['prompt']}")
+        lines.append(f"**{scene['id']}**")
     return "\n\n".join(lines)
 
 
@@ -172,21 +159,6 @@ def delete_image(gallery, evt: gr.SelectData):
             return f"Deleted: {os.path.basename(img_path)}", get_all_images()
     return "No image selected", get_all_images()
 
-
-def generate_sd_images(scene_id, preview_mode):
-    """Generate images via Stable Diffusion."""
-    if not check_sd_status():
-        return "Stable Diffusion is NOT running. Start it first or upload images manually.", get_all_images()
-
-    cmd = "npm run generate-images"
-    if scene_id and scene_id != "All scenes":
-        cmd += f" -- --scene {scene_id}"
-    if preview_mode:
-        cmd += " -- --preview"
-
-    output, success = run_command(cmd)
-    status = "Generation complete!" if success else "Generation failed."
-    return f"{status}\n\n```\n{output}\n```", get_all_images()
 
 
 def generate_test_image(scene_id):
@@ -340,21 +312,15 @@ def create_app():
         title="Sleep Video Generator",
     ) as app:
         gr.Markdown("# Sleep Video Generator")
-        gr.Markdown("Complete pipeline: Images → Vectorize → Voice → Render")
-
-        # Status bar
-        with gr.Row():
-            sd_status = gr.Markdown(
-                value=f"**Stable Diffusion:** {'Running' if check_sd_status() else 'Not running (upload images manually)'}"
-            )
+        gr.Markdown("Complete pipeline: Upload Images → Vectorize → Voice → Render")
 
         with gr.Tabs():
             # ─── TAB 1: SCENES & SCRIPT ──────────────────────────────────
             with gr.Tab("1. Scenes & Script", id="scenes"):
                 with gr.Row():
                     with gr.Column():
-                        gr.Markdown("### Scene Prompts")
-                        gr.Markdown("Edit the JSON below to modify scenes and prompts.")
+                        gr.Markdown("### Scenes")
+                        gr.Markdown("Edit the JSON below to modify scene IDs.")
                         prompts_editor = gr.Code(
                             value=json.dumps(prompts_data, indent=2),
                             language="json",
@@ -381,8 +347,8 @@ def create_app():
 
             # ─── TAB 2: IMAGES ────────────────────────────────────────────
             with gr.Tab("2. Images", id="images"):
-                gr.Markdown("### Upload or Generate Images")
-                gr.Markdown("Upload your own line-art images (white on black, PNG) or generate with Stable Diffusion.")
+                gr.Markdown("### Upload Images")
+                gr.Markdown("Upload your line-art images (white on black, PNG). Keep ONE image per scene.")
 
                 with gr.Row():
                     with gr.Column(scale=1):
@@ -410,16 +376,6 @@ def create_app():
                         test_btn = gr.Button("Generate Test Image (ImageMagick)")
                         test_status = gr.Markdown()
 
-                        gr.Markdown("---")
-                        gr.Markdown("#### Stable Diffusion")
-                        sd_scene = gr.Dropdown(
-                            choices=["All scenes"] + scene_ids,
-                            label="Scene to generate",
-                            value="All scenes",
-                        )
-                        sd_preview = gr.Checkbox(label="Preview mode (1 variant only)", value=True)
-                        sd_btn = gr.Button("Generate with SD")
-                        sd_status = gr.Markdown()
 
                     with gr.Column(scale=2):
                         gr.Markdown("#### Image Gallery")
@@ -460,11 +416,6 @@ def create_app():
                     generate_test_image,
                     inputs=[test_scene],
                     outputs=[test_status, image_gallery],
-                )
-                sd_btn.click(
-                    generate_sd_images,
-                    inputs=[sd_scene, sd_preview],
-                    outputs=[sd_status, image_gallery],
                 )
                 delete_btn.click(
                     do_delete,
